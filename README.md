@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ERP BTP SaaS
 
-## Getting Started
+**Pilotage Économique Simplifié** - Le seul ERP BTP qui se pilote avec 3 chiffres : CA, Coûts, MBH
 
-First, run the development server:
+## 🚀 Technologies
+
+- **Next.js 16.1.6** avec Turbopack
+- **React 19** avec React Compiler
+- **TypeScript**
+- **Tailwind CSS v3**
+- **Firebase** (à venir)
+- **Lucide React** pour les icônes
+- **Zustand** pour le state management
+- **React Hook Form + Zod** pour les formulaires
+
+## 📦 Installation
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'application sera disponible sur [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🎨 Design System
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Interface moderne basée sur la charte graphique PragmaPlanning :
+- Couleur principale : Emerald (#10b981)
+- Typographie : Inter
+- Effets : Glassmorphism, gradients, ombres colorées
 
-## Learn More
+## 📄 Pages
 
-To learn more about Next.js, take a look at the following resources:
+- **/** - Landing page moderne avec hero section
+- **/login** - Page de connexion
+- **/register** - Page d'inscription
+- **/demo** - Démonstration (à venir)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🏗️ Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+erp-btp-saas/
+├── app/              # Pages Next.js 16 (App Router)
+├── components/       # Composants réutilisables
+│   └── ui/          # Composants UI (Button, Input, Card)
+├── lib/             # Utilitaires et constantes
+│   ├── constants.ts # Couleurs et statuts
+│   └── utils.ts     # Fonctions de formatage et calculs MBH
+└── public/          # Assets statiques
+```
 
-## Deploy on Vercel
+## 🎯 Fonctionnalités prévues
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Phase 1 - MVP (4 semaines)
+- [x] Infrastructure Next.js + Tailwind
+- [x] Design system PragmaPlanning
+- [x] Landing page premium
+- [x] Pages authentification
+- [ ] Configuration Firebase
+- [ ] Dashboard personnalisable
+- [ ] Gestion clients
+- [ ] Module devis
+- [ ] Suivi chantiers
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Phase 2 - Avancé (4 semaines)
+- [ ] Suivi dépenses mobile-first
+- [ ] Facturation
+- [ ] Calcul MBH temps réel
+- [ ] Analytics avancés
+- [ ] Contrats de maintenance
+
+### Phase 3 - Premium (3 semaines)
+- [ ] Gestion permissions avancée
+- [ ] PWA mobile
+- [ ] Intégrations Open Banking
+- [ ] Portail client
+
+## 📝 License
+
+Propriétaire - © 2026 ERP BTP
+
+## 👨‍💻 Auteur
+
+Emmanuel BRZOZOWSKI
