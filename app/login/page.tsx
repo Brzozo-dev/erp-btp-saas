@@ -24,7 +24,7 @@ export default function LoginPage() {
                         <p className="text-gray-600">Connectez-vous à votre espace de gestion</p>
                     </div>
 
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); window.location.href = '/dashboard'; }}>
                         {/* Email */}
                         <div>
                             <label className="mb-2 block text-sm font-bold text-gray-700">
