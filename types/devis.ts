@@ -1,5 +1,15 @@
 export type QuoteStatus = 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REFUSED' | 'CANCELLED';
 
+export interface QuoteSubItem {
+    id: string;
+    articleId?: string; // If linked to a DB article
+    description: string;
+    unit: string;
+    quantity: number;
+    unitPrice: number;
+    type: 'MO' | 'MAT' | 'ST';
+}
+
 export interface QuoteItem {
     id: string;
     description: string;
@@ -8,6 +18,7 @@ export interface QuoteItem {
     unitPriceMO: number;
     unitPriceMat: number;
     unitPriceST: number;
+    subItems?: QuoteSubItem[]; // Dictates the unit prices if present
 }
 
 export interface QuoteSection {
