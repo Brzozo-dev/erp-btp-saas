@@ -11,14 +11,17 @@ import {
     Users,
     FileCheck,
     UserCog,
-    Settings
+    Settings,
+    Package
 } from "lucide-react";
 
 const navigation = [
     { name: "Tableau de Bord", href: "/dashboard", icon: LayoutDashboard },
     { name: "Chantiers", href: "/chantiers", icon: HardHat },
     { name: "Devis", href: "/devis", icon: FileText },
+    { name: "Articles", href: "/articles", icon: Package },
     { name: "Factures", href: "/factures", icon: Receipt },
+    { name: "Paramètres", href: "/parametres", icon: Settings },
 ];
 
 export function Sidebar() {
