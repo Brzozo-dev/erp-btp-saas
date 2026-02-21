@@ -8,18 +8,20 @@ import {
     CalendarDays,
     FileText,
     Receipt,
-    Users,
     FileCheck,
     UserCog,
     Settings,
-    Package
+    Package,
+    Layers
 } from "lucide-react";
 
 const navigation = [
     { name: "Tableau de Bord", href: "/dashboard", icon: LayoutDashboard },
     { name: "Chantiers", href: "/chantiers", icon: HardHat },
     { name: "Devis", href: "/devis", icon: FileText },
+    { name: "Clients", href: "/clients", icon: UserCog },
     { name: "Articles", href: "/articles", icon: Package },
+    { name: "Ouvrages", href: "/ouvrages", icon: Layers },
     { name: "Factures", href: "/factures", icon: Receipt },
     { name: "Paramètres", href: "/parametres", icon: Settings },
 ];

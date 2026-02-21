@@ -17,6 +17,8 @@ export default function QuoteSubItemRow({ subItem, onChange, onDelete }: QuoteSu
     const [searchTerm, setSearchTerm] = useState(subItem.description);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [suggestions, setSuggestions] = useState<Article[]>([]);
+    const [newUnite, setNewUnite] = useState(subItem.unit || 'U');
+    const [newPrix, setNewPrix] = useState<number>(subItem.unitPrice || 0);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
     // Handle outside click to close suggestions
@@ -44,12 +46,12 @@ export default function QuoteSubItemRow({ subItem, onChange, onDelete }: QuoteSu
         onChange({
             ...subItem,
             articleId: article.id,
-            description: article.name,
-            unit: article.unit,
-            unitPrice: article.price, // Uses the stored price
-            type: article.type,
+            description: article.designation,
+            unit: article.unite,
+            unitPrice: article.prixUnitaire, // Uses the stored price
+            type: article.type === 'MOD' ? 'MO' : article.type === 'SOUS_TRAITANCE' ? 'ST' : 'MAT',
         });
-        setSearchTerm(article.name);
+        setSearchTerm(article.designation);
         setShowSuggestions(false);
     };
 
@@ -58,23 +60,22 @@ export default function QuoteSubItemRow({ subItem, onChange, onDelete }: QuoteSu
 
         const newArticle = {
             reference: searchTerm.substring(0, 3).toUpperCase() + '-' + Math.floor(Math.random() * 1000),
-            name: searchTerm,
-            unit: subItem.unit || 'u',
-            price: subItem.unitPrice || 0,
-            type: subItem.type,
+            designation: searchTerm,
+            unite: newUnite,
+            prixUnitaire: newPrix,
+            type: subItem.type as any, // or as ArticleType
             category: 'Divers'
         };
 
         addArticle(newArticle);
 
-        // Find the newly created article (it will be the last one, or match name)
-        // Ideally addArticle should return the ID, but for now we search or just rely on state update
-        // Let's just update the subItem locally
         onChange({
             ...subItem,
             description: searchTerm,
-            // We can link it later or if the store updates fast enough
+            unit: newUnite,
+            unitPrice: newPrix,
         });
+
         setShowSuggestions(false);
     };
 
@@ -128,19 +129,39 @@ export default function QuoteSubItemRow({ subItem, onChange, onDelete }: QuoteSu
                                             className="w-full text-left px-3 py-2 hover:bg-gray-50 flex justify-between items-center text-sm"
                                             type="button"
                                         >
-                                            <span>{article.name}</span>
-                                            <span className="text-gray-400 text-xs">{article.price}€ / {article.unit}</span>
+                                            <span>{article.designation}</span>
+                                            <span className="text-gray-400 text-xs">{article.prixUnitaire}€ / {article.unite}</span>
                                         </button>
                                     ))
                                 ) : (
-                                    <button
-                                        onClick={handleCreateArticle}
-                                        className="w-full text-left px-3 py-2 hover:bg-emerald-50 text-emerald-600 flex items-center gap-2 text-sm font-medium"
-                                        type="button"
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                        Créer "{searchTerm}" dans la base
-                                    </button>
+                                    <div className="flex flex-col gap-2 p-3 bg-gray-50/80 border-t">
+                                        <div className="text-sm font-medium text-gray-700">
+                                            Créer "{searchTerm}"
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Input
+                                                value={newUnite}
+                                                onChange={(e) => setNewUnite(e.target.value)}
+                                                placeholder="Unité"
+                                                className="w-20 h-8 text-sm"
+                                            />
+                                            <Input
+                                                type="number"
+                                                value={newPrix || ''}
+                                                onChange={(e) => setNewPrix(parseFloat(e.target.value) || 0)}
+                                                placeholder="Prix unit."
+                                                className="flex-1 h-8 text-sm text-right"
+                                            />
+                                            <div className="flex items-center text-gray-500 text-sm">€</div>
+                                        </div>
+                                        <button
+                                            onClick={handleCreateArticle}
+                                            className="mt-1 w-full text-center px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded border border-transparent text-sm font-medium transition-colors"
+                                            type="button"
+                                        >
+                                            Créer et utiliser
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         )}

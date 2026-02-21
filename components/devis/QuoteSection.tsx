@@ -5,16 +5,16 @@ import QuoteItemRow from './QuoteItemRow';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid'; // UUID would be valid here, but I don't have uuid installed. I'll use simple random id.
 
 interface QuoteSectionProps {
     section: QuoteSection;
     globalCoefficients: GlobalCoefficients;
+    globalBenefice: number;
     onChange: (updatedSection: QuoteSection) => void;
     onDelete: () => void;
 }
 
-export default function QuoteSectionBlock({ section, globalCoefficients, onChange, onDelete }: QuoteSectionProps) {
+export default function QuoteSectionBlock({ section, globalCoefficients, globalBenefice, onChange, onDelete }: QuoteSectionProps) {
 
     const handleAddItem = () => {
         const newItem: QuoteItem = {
@@ -45,10 +45,12 @@ export default function QuoteSectionBlock({ section, globalCoefficients, onChang
 
     // Calculate Section Total
     const sectionTotal = section.items.reduce((acc, item) => {
+        const itemBenefice = item.benefice !== undefined ? item.benefice : globalBenefice;
         const spMO = item.unitPriceMO * globalCoefficients.mo;
         const spMat = item.unitPriceMat * globalCoefficients.mat;
         const spST = item.unitPriceST * globalCoefficients.st;
-        return acc + (spMO + spMat + spST) * item.quantity;
+        const itemRevient = (spMO + spMat + spST) * item.quantity;
+        return acc + itemRevient * (1 + itemBenefice / 100);
     }, 0);
 
     return (
@@ -85,6 +87,7 @@ export default function QuoteSectionBlock({ section, globalCoefficients, onChang
                             <th className="pb-2 w-28 text-right text-blue-600">P.U. MO (€)</th>
                             <th className="pb-2 w-28 text-right text-orange-600">P.U. Mat (€)</th>
                             <th className="pb-2 w-28 text-right text-purple-600">P.U. ST (€)</th>
+                            <th className="pb-2 w-24 text-right text-emerald-600">Marge (%)</th>
                             <th className="pb-2 w-32 text-right">Total HT</th>
                             <th className="pb-2 w-10"></th>
                         </tr>
@@ -95,6 +98,7 @@ export default function QuoteSectionBlock({ section, globalCoefficients, onChang
                                 key={item.id}
                                 item={item}
                                 globalCoefficients={globalCoefficients}
+                                globalBenefice={globalBenefice}
                                 onChange={(updated) => handleUpdateItem(index, updated)}
                                 onDelete={() => handleDeleteItem(index)}
                             />

@@ -28,6 +28,7 @@ export const mockQuotes: Quote[] = [
             },
         ],
         globalCoefficients: { mo: 1.15, mat: 1.10, st: 1.05 },
+        benefice: 10,
         totalHT: 3000, // Simplified for mock
     },
     {
@@ -41,6 +42,7 @@ export const mockQuotes: Quote[] = [
         status: 'DRAFT',
         sections: [],
         globalCoefficients: { mo: 1.15, mat: 1.10, st: 1.05 },
+        benefice: 10,
         totalHT: 0,
     },
     {
@@ -54,6 +56,7 @@ export const mockQuotes: Quote[] = [
         status: 'ACCEPTED',
         sections: [],
         globalCoefficients: { mo: 1.15, mat: 1.10, st: 1.05 },
+        benefice: 10,
         totalHT: 15400,
     },
 ];

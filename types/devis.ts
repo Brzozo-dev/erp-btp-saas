@@ -18,6 +18,7 @@ export interface QuoteItem {
     unitPriceMO: number;
     unitPriceMat: number;
     unitPriceST: number;
+    benefice?: number; // Pourcentage de marge (ex: 15 pour 15%) spécifique à cette ligne
     subItems?: QuoteSubItem[]; // Dictates the unit prices if present
 }
 
@@ -50,5 +51,6 @@ export interface Quote {
     status: QuoteStatus;
     sections: QuoteSection[];
     globalCoefficients: GlobalCoefficients;
+    benefice: number; // Bénéfice global (%) du devis (figé à la création)
     totalHT: number;
 }

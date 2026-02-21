@@ -6,8 +6,10 @@ import { Quote, QuoteStatus, GlobalCoefficients, QuoteSection, QuoteItem } from 
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import QuoteSectionBlock from './QuoteSection';
-import { ArrowLeft, Plus, Save } from 'lucide-react';
+import { ArrowLeft, Plus, Save, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { GenererFactureModal } from './GenererFactureModal';
+import { useParametresStore } from '@/lib/stores/parametresStore';
 
 // Mock data for dropdowns
 const WORK_TYPES = [
@@ -37,6 +39,9 @@ interface DevisFormProps {
 export default function DevisForm({ initialData }: DevisFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+
+    const { beneficeParDefaut } = useParametresStore();
 
     // Form State
     const [formData, setFormData] = useState<Partial<Quote>>(
@@ -50,6 +55,7 @@ export default function DevisForm({ initialData }: DevisFormProps) {
             status: 'DRAFT',
             sections: [],
             globalCoefficients: DEFAULT_COEFFICIENTS,
+            benefice: beneficeParDefaut,
             totalHT: 0,
         }
     );
@@ -69,24 +75,18 @@ export default function DevisForm({ initialData }: DevisFormProps) {
                 const spMat = item.unitPriceMat * coeffs.mat;
                 const spST = item.unitPriceST * coeffs.st;
 
-                // Costs (assuming unitPrice is cost price here for calculations, based on PRD "Coût horaire", but user inputs "Prix Unitaire" in row? 
-                // WAIT - PRD says: 
-                // "MO : 24h x 65€ = 1560 €" <- this looks like selling price.
-                // "Coûts prévisionnels ... MO (124h x 40,25€)" <- this is cost.
-                // In QuoteItemRow I labeled inputs "P.U. MO". 
-                // IF the user inputs COST, then applying coeff makes sense. 
-                // IF the user inputs SELLING PRICE, then coeff shouldn't be applied to get selling price.
-                // BASED on PRD 3.2.1: "Coût horaire moyen : 35€... + Coeff 1.15 -> Coût chargé 40.25... Prix de vente 65€"
-                // Actually the "Coefficients" in section 3.2.4 "Coefficients modifiables par devis" seem to imply:
-                // "Cost * Coeff = Selling Price" or "Base * Coeff = Selling Price".
-                // Let's assume for this MVP that the user inputs the BASIS (Cost usually, or Base Rate) and the coefficients multiply it to get the Selling Price.
-                // So: Input = Cost/Base.
+                const itemBenefice = item.benefice !== undefined ? item.benefice : (formData.benefice || 0);
 
-                const itemTotalHT = (spMO + spMat + spST) * item.quantity;
-                totalHT += itemTotalHT;
+                // Pricing logic :
+                // Cost = raw inputs (assuming they are direct costs)
+                // Revient = Cost * globalCoefficients
+                // Vente (Total HT) = Revient * (1 + benefice/100)
 
-                // Simplified Cost Calculation (Unit Price input IS the cost)
                 const itemCost = (item.unitPriceMO + item.unitPriceMat + item.unitPriceST) * item.quantity;
+                const itemRevient = (spMO + spMat + spST) * item.quantity;
+                const itemTotalHT = itemRevient * (1 + itemBenefice / 100);
+
+                totalHT += itemTotalHT;
                 totalCost += itemCost;
 
                 // Hours
@@ -103,7 +103,7 @@ export default function DevisForm({ initialData }: DevisFormProps) {
         const totalTTC = totalHT + tva;
 
         return { totalHT, totalCost, marginAmount, marginPercent, tva, totalTTC };
-    }, [formData.sections, formData.globalCoefficients]);
+    }, [formData.sections, formData.globalCoefficients, formData.benefice]);
 
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -172,6 +172,16 @@ export default function DevisForm({ initialData }: DevisFormProps) {
                             {formData.status === 'CANCELLED' && 'Annulé'}
                         </span>
                     </div>
+                    {initialData && formData.status === 'ACCEPTED' && (
+                        <Button
+                            type="button"
+                            onClick={() => setIsInvoiceModalOpen(true)}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 mr-2"
+                        >
+                            <FileText className="w-4 h-4" />
+                            Facturer
+                        </Button>
+                    )}
                     <Button type="button" variant="outline" onClick={() => router.push('/devis')}>
                         Annuler
                     </Button>
@@ -270,6 +280,7 @@ export default function DevisForm({ initialData }: DevisFormProps) {
                                 key={section.id}
                                 section={section}
                                 globalCoefficients={formData.globalCoefficients || DEFAULT_COEFFICIENTS}
+                                globalBenefice={formData.benefice || 0}
                                 onChange={(updated) => updateSection(index, updated)}
                                 onDelete={() => removeSection(index)}
                             />
@@ -347,6 +358,24 @@ export default function DevisForm({ initialData }: DevisFormProps) {
                                     className="w-full accent-purple-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                                 />
                             </div>
+
+                            <div className="pt-4 border-t border-gray-100">
+                                <label className="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span className="text-emerald-700">Marge globale (%)</span>
+                                    <span className="font-bold">{formData.benefice?.toFixed(2)} %</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value={formData.benefice || 0}
+                                    onChange={(e) => setFormData({
+                                        ...formData,
+                                        benefice: parseFloat(e.target.value) || 0
+                                    })}
+                                    className="w-full h-10 px-3 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -384,6 +413,14 @@ export default function DevisForm({ initialData }: DevisFormProps) {
                     </div>
                 </div>
             </div>
+
+            {initialData && (
+                <GenererFactureModal
+                    quote={initialData}
+                    isOpen={isInvoiceModalOpen}
+                    onClose={() => setIsInvoiceModalOpen(false)}
+                />
+            )}
         </form>
     );
 }

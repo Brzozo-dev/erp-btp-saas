@@ -9,11 +9,12 @@ import QuoteSubItemRow from './QuoteSubItemRow';
 interface QuoteItemRowProps {
     item: QuoteItem;
     globalCoefficients: GlobalCoefficients;
+    globalBenefice: number;
     onChange: (updatedItem: QuoteItem) => void;
     onDelete: () => void;
 }
 
-export default function QuoteItemRow({ item, globalCoefficients, onChange, onDelete }: QuoteItemRowProps) {
+export default function QuoteItemRow({ item, globalCoefficients, globalBenefice, onChange, onDelete }: QuoteItemRowProps) {
 
     const [isExpanded, setIsExpanded] = useState(false);
 
