@@ -4,11 +4,12 @@ import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
+  weight: ['400', '500', '600', '700', '900'],
   variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
-  title: "ERP BTP - Pilotage Économique Simplifié",
+  title: "PragmaGestion — Pilotage économique BTP",
   description: "Le seul ERP BTP qui se pilote avec 3 chiffres : CA, Coûts, MBH",
 };
 
