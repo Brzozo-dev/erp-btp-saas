@@ -8,19 +8,19 @@ import Button from '@/components/ui/Button';
 import { Plus, Search, Filter } from 'lucide-react';
 
 const statusColors: Record<QuoteStatus, string> = {
-    DRAFT: 'bg-gray-100 text-gray-800',
-    SENT: 'bg-blue-100 text-blue-800',
-    ACCEPTED: 'bg-green-100 text-green-800',
-    REFUSED: 'bg-red-100 text-red-800',
-    CANCELLED: 'bg-gray-100 text-gray-500 line-through',
+    ETUDE: 'bg-gray-100 text-gray-800',
+    REMIS: 'bg-blue-100 text-blue-800',
+    ACCEPTE: 'bg-green-100 text-green-800',
+    REFUSE: 'bg-red-100 text-red-800',
+    ANNULE: 'bg-gray-100 text-gray-500 line-through',
 };
 
 const statusLabels: Record<QuoteStatus, string> = {
-    DRAFT: 'Brouillon',
-    SENT: 'Envoyé',
-    ACCEPTED: 'Accepté',
-    REFUSED: 'Refusé',
-    CANCELLED: 'Annulé',
+    ETUDE: 'Étude',
+    REMIS: 'Remis',
+    ACCEPTE: 'Accepté',
+    REFUSE: 'Refusé',
+    ANNULE: 'Annulé',
 };
 
 export default function DevisList() {
@@ -71,11 +71,11 @@ export default function DevisList() {
                         onChange={(e) => setStatusFilter(e.target.value as QuoteStatus | 'ALL')}
                     >
                         <option value="ALL">Tous les statuts</option>
-                        <option value="DRAFT">Brouillon</option>
-                        <option value="SENT">Envoyé</option>
-                        <option value="ACCEPTED">Accepté</option>
-                        <option value="REFUSED">Refusé</option>
-                        <option value="CANCELLED">Annulé</option>
+                        <option value="ETUDE">Étude</option>
+                        <option value="REMIS">Remis</option>
+                        <option value="ACCEPTE">Accepté</option>
+                        <option value="REFUSE">Refusé</option>
+                        <option value="ANNULE">Annulé</option>
                     </select>
                 </div>
             </div>

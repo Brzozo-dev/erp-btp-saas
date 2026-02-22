@@ -1,4 +1,4 @@
-export type QuoteStatus = 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REFUSED' | 'CANCELLED';
+export type QuoteStatus = 'ETUDE' | 'REMIS' | 'ACCEPTE' | 'REFUSE' | 'ANNULE';
 
 export interface QuoteSubItem {
     id: string;

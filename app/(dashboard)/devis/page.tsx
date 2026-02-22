@@ -7,6 +7,7 @@ import { useParametresStore } from '@/lib/stores/parametresStore';
 import { useArticleStore, Article, ArticleType } from '@/lib/stores/articleStore';
 import { useOuvrageStore } from '@/lib/stores/ouvrageStore';
 import { useClientStore } from '@/lib/stores/clientStore';
+import { QuoteStatus } from '@/types/devis';
 import { ClientSelector } from '@/components/devis/ClientSelector';
 import {
     DndContext,
@@ -659,6 +660,16 @@ export default function DevisPrototypePage() {
     const { coefficients } = useParametresStore();
     const { updateArticlePrice } = useArticleStore();
 
+    // Status
+    const [status, setStatus] = useState<QuoteStatus>('REMIS');
+    const statusColors: Record<QuoteStatus, string> = {
+        ETUDE: 'bg-gray-100 text-gray-800',
+        REMIS: 'bg-blue-100 text-blue-800',
+        ACCEPTE: 'bg-green-100 text-green-800',
+        REFUSE: 'bg-red-100 text-red-800',
+        ANNULE: 'bg-gray-100 text-gray-500 line-through',
+    };
+
     const [sections, setSections] = useState<Section[]>(() => createMockSections(coefficients as unknown as Record<string, number>));
     const [priceDialog, setPriceDialog] = useState<{ subItemId: string; designation: string; articleId: string; oldPrice: number; newPrice: number } | null>(null);
 
@@ -873,7 +884,7 @@ export default function DevisPrototypePage() {
                 )}
                 {/* En-tête */}
                 <div className="bg-white border-b shadow-sm sticky top-0 z-20">
-                    <div className="max-w-[1400px] mx-auto px-6 py-4">
+                    <div className="w-full 2xl:max-w-[1800px] mx-auto px-6 py-4">
                         <div className="flex justify-between items-start">
                             <div className="flex items-start gap-4">
                                 <Link href="/devis" className="mt-1 p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -882,7 +893,17 @@ export default function DevisPrototypePage() {
                                 <div>
                                     <div className="flex items-center gap-3">
                                         <h1 className="text-xl font-bold text-gray-900">DEV-2026-047</h1>
-                                        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Envoyé</span>
+                                        <select
+                                            value={status}
+                                            onChange={(e) => setStatus(e.target.value as QuoteStatus)}
+                                            className={`px-3 py-1.5 rounded-full text-sm font-medium border-0 cursor-pointer focus:ring-2 focus:ring-indigo-500 outline-none appearance-none ${statusColors[status]}`}
+                                        >
+                                            <option value="ETUDE">Étude</option>
+                                            <option value="REMIS">Remis (Envoyé)</option>
+                                            <option value="ACCEPTE">Accepté</option>
+                                            <option value="REFUSE">Refusé</option>
+                                            <option value="ANNULE">Annulé</option>
+                                        </select>
                                     </div>
                                     <p className="text-sm text-gray-500 mt-0.5">
                                         SILENE ISAU ESPACES VERTS — Aménagement paysager
@@ -890,6 +911,10 @@ export default function DevisPrototypePage() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
+                                <Link href="/devis/new" className="flex items-center gap-2 px-3 py-2 text-sm text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors font-medium">
+                                    <Plus className="w-4 h-4" />
+                                    Créer un devis
+                                </Link>
                                 <Link href="/parametres" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                                     ⚙ Paramètres
                                 </Link>
@@ -906,7 +931,7 @@ export default function DevisPrototypePage() {
                     </div>
                 </div>
 
-                <div className="max-w-[1400px] mx-auto px-6 py-6">
+                <div className="w-full 2xl:max-w-[1800px] mx-auto px-6 py-6">
                     <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
 
                         {/* Colonne principale — Détail du devis */}

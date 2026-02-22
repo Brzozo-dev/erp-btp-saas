@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Quote, QuoteStatus, GlobalCoefficients, QuoteSection, QuoteItem } from '@/types/devis';
 import Button from '@/components/ui/Button';
@@ -41,24 +41,51 @@ export default function DevisForm({ initialData }: DevisFormProps) {
     const [loading, setLoading] = useState(false);
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
 
-    const { beneficeParDefaut } = useParametresStore();
+    const { beneficeParDefaut, consommerProchainNumeroDevis, redefinirCompteurDevis } = useParametresStore();
+
+    // Ref guard : consommation unique du numéro à la création
+    const numeroConsome = useRef(false);
+    // État local : numéro entier (ex: 5)
+    const [numeroDevis, setNumeroDevis] = useState<number | null>(null);
+
+    // Construit la référence formatée DEV-YYYY-NNN
+    function formatReference(num: number): string {
+        const year = new Date().getFullYear();
+        return `DEV-${year}-${String(num).padStart(3, '0')}`;
+    }
 
     // Form State
     const [formData, setFormData] = useState<Partial<Quote>>(
         initialData || {
-            reference: 'DEV-NEW', // Should be auto-generated
+            reference: '',  // sera rempli après consommation du numéro
             clientId: '',
             clientName: '',
             description: '',
             date: new Date().toISOString().split('T')[0],
             validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            status: 'DRAFT',
+            status: 'ETUDE',
             sections: [],
             globalCoefficients: DEFAULT_COEFFICIENTS,
             benefice: beneficeParDefaut,
             totalHT: 0,
         }
     );
+
+    // Consomme le prochain numéro une seule fois à la création d'un nouveau devis
+    useEffect(() => {
+        if (!initialData && !numeroConsome.current) {
+            numeroConsome.current = true;
+            const num = consommerProchainNumeroDevis();
+            setNumeroDevis(num);
+            setFormData(prev => ({ ...prev, reference: formatReference(num) }));
+        } else if (initialData) {
+            // En édition : extraire le numéro de la référence existante
+            const parts = initialData.reference.split('-');
+            const num = parseInt(parts[parts.length - 1], 10);
+            setNumeroDevis(isNaN(num) ? null : num);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // --- Calculations ---
     const totals = useMemo(() => {
@@ -138,11 +165,11 @@ export default function DevisForm({ initialData }: DevisFormProps) {
     };
 
     const statusColors: Record<QuoteStatus, string> = {
-        DRAFT: 'bg-gray-100 text-gray-800',
-        SENT: 'bg-blue-100 text-blue-800',
-        ACCEPTED: 'bg-green-100 text-green-800',
-        REFUSED: 'bg-red-100 text-red-800',
-        CANCELLED: 'bg-gray-100 text-gray-500 line-through',
+        ETUDE: 'bg-gray-100 text-gray-800',
+        REMIS: 'bg-blue-100 text-blue-800',
+        ACCEPTE: 'bg-green-100 text-green-800',
+        REFUSE: 'bg-red-100 text-red-800',
+        ANNULE: 'bg-gray-100 text-gray-500 line-through',
     };
 
     return (
@@ -164,24 +191,18 @@ export default function DevisForm({ initialData }: DevisFormProps) {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="mr-4">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${formData.status ? statusColors[formData.status as QuoteStatus] : 'bg-gray-100'}`}>
-                            {formData.status === 'DRAFT' && 'Brouillon'}
-                            {formData.status === 'SENT' && 'Envoyé'}
-                            {formData.status === 'ACCEPTED' && 'Accepté'}
-                            {formData.status === 'REFUSED' && 'Refusé'}
-                            {formData.status === 'CANCELLED' && 'Annulé'}
-                        </span>
-                    </div>
-                    {initialData && formData.status === 'ACCEPTED' && (
-                        <Button
-                            type="button"
-                            onClick={() => setIsInvoiceModalOpen(true)}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 mr-2"
+                        <select
+                            value={formData.status || 'ETUDE'}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.value as QuoteStatus })}
+                            className={`px-3 py-1.5 rounded-full text-sm font-medium border-0 cursor-pointer focus:ring-2 focus:ring-indigo-500 outline-none ${formData.status ? statusColors[formData.status as QuoteStatus] : 'bg-gray-100'}`}
                         >
-                            <FileText className="w-4 h-4" />
-                            Facturer
-                        </Button>
-                    )}
+                            <option value="ETUDE">Étude</option>
+                            <option value="REMIS">Remis</option>
+                            <option value="ACCEPTE">Accepté</option>
+                            <option value="REFUSE">Refusé</option>
+                            <option value="ANNULE">Annulé</option>
+                        </select>
+                    </div>
                     <Button type="button" variant="outline" onClick={() => router.push('/devis')}>
                         Annuler
                     </Button>
@@ -200,6 +221,39 @@ export default function DevisForm({ initialData }: DevisFormProps) {
                     <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
                         <h2 className="text-lg font-semibold text-gray-900 border-b pb-2">Informations Générales</h2>
                         <div className="grid grid-cols-2 gap-4">
+                            {/* Numéro du devis */}
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Numéro du Devis
+                                    <span className="ml-2 text-xs font-normal text-gray-400">(modifiable — redéfinit la base d&apos;incrémentation)</span>
+                                </label>
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        value={numeroDevis ?? ''}
+                                        onChange={(e) => {
+                                            const n = parseInt(e.target.value, 10);
+                                            if (!isNaN(n) && n >= 1) {
+                                                setNumeroDevis(n);
+                                                setFormData(prev => ({ ...prev, reference: formatReference(n) }));
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            if (numeroDevis !== null) {
+                                                // Repositionne le compteur sur num+1 pour la prochaine création
+                                                redefinirCompteurDevis(numeroDevis + 1);
+                                            }
+                                        }}
+                                        className="w-32 h-10 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base font-semibold"
+                                    />
+                                    <div className="px-3 py-2 bg-indigo-50 border border-indigo-200 rounded-md text-sm font-mono font-semibold text-indigo-700">
+                                        {formData.reference || '—'}
+                                    </div>
+                                    <span className="text-xs text-gray-400">Référence complète</span>
+                                </div>
+                            </div>
                             <div className="col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Description / Nom du Projet</label>
                                 <Input

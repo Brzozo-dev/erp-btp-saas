@@ -1,7 +1,7 @@
 'use client';
 
 import { useParametresStore, calculerCoutHoraire, CoefficientsParDefaut } from '@/lib/stores/parametresStore';
-import { Settings, RotateCcw, Info, Calculator, ArrowRight, AlertTriangle, BookText, FileText, Tags, Plus, Trash2, Briefcase } from 'lucide-react';
+import { Settings, RotateCcw, Info, Calculator, ArrowRight, AlertTriangle, BookText, FileText, Tags, Plus, Trash2, Briefcase, Hash } from 'lucide-react';
 import { useState } from 'react';
 
 const coeffLabels: Record<keyof CoefficientsParDefaut, { label: string; description: string; color: string; bgColor: string }> = {
@@ -53,6 +53,9 @@ export default function ParametresPage() {
         setBeneficeParDefaut,
         calculMO,
         setCalculMO,
+        devisNumeroInitial,
+        devisNumeroActuel,
+        setDevisNumeroInitial,
         typesTravaux,
         addTypeTravaux,
         updateTypeTravaux,
@@ -70,6 +73,8 @@ export default function ParametresPage() {
     const [newTypeTravaux, setNewTypeTravaux] = useState('');
     const [newTagCat, setNewTagCat] = useState('');
     const [newTagInputs, setNewTagInputs] = useState<Record<string, string>>({});
+    const [numeroInput, setNumeroInput] = useState<string>(String(devisNumeroInitial));
+    const [numeroApplique, setNumeroApplique] = useState(false);
 
     return (
         <div className="max-w-4xl mx-auto py-8 space-y-8">
@@ -410,6 +415,84 @@ export default function ParametresPage() {
                             </div>
                         </div>
 
+                    </div>
+
+                    {/* ============================================================ */}
+                    {/* SECTION 3 : NUMÉROTATION DES DEVIS */}
+                    {/* ============================================================ */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-3 border-b pb-3">
+                            <Hash className="w-5 h-5 text-indigo-600" />
+                            <h2 className="text-lg font-bold text-gray-900">Numérotation des Devis</h2>
+                        </div>
+
+                        <div className="bg-white rounded-xl border shadow-sm p-6 space-y-5">
+                            {/* Info */}
+                            <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex items-start gap-3">
+                                <Info className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
+                                <div className="text-sm text-indigo-800">
+                                    <p className="font-medium mb-1">Comment ça fonctionne ?</p>
+                                    <p>
+                                        Définissez le <strong>numéro de départ</strong> pour vos devis. Chaque nouveau devis reçoit
+                                        automatiquement le numéro suivant. Vous pouvez aussi modifier le numéro directement sur
+                                        un devis, ce qui <strong>redéfinit la base</strong> de la prochaine incrémentation.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Compteur courant */}
+                            <div className="flex items-center justify-between p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+                                <div>
+                                    <p className="text-sm font-semibold text-indigo-700">Prochain numéro attribué</p>
+                                    <p className="text-xs text-indigo-500 mt-0.5">Sera utilisé lors de la création du prochain devis</p>
+                                </div>
+                                <p className="text-4xl font-bold text-indigo-700 tabular-nums font-mono">{devisNumeroActuel}</p>
+                            </div>
+
+                            {/* Saisie numéro initial */}
+                            <div className="flex items-end gap-4">
+                                <div className="flex-1 space-y-2">
+                                    <label className="block text-sm font-semibold text-gray-700">
+                                        Redéfinir le numéro de départ
+                                        <span className="block text-xs font-normal text-gray-400 mt-0.5">
+                                            Le compteur et le numéro initial seront réinitialisés à cette valeur
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        value={numeroInput}
+                                        onChange={(e) => {
+                                            setNumeroInput(e.target.value);
+                                            setNumeroApplique(false);
+                                        }}
+                                        className="w-full h-12 px-4 text-lg font-semibold rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        placeholder="ex: 100"
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const n = parseInt(numeroInput, 10);
+                                        if (!isNaN(n) && n >= 1) {
+                                            setDevisNumeroInitial(n);
+                                            setNumeroApplique(true);
+                                        }
+                                    }}
+                                    className="flex items-center gap-2 px-5 h-12 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm"
+                                >
+                                    <ArrowRight className="w-4 h-4" />
+                                    Appliquer
+                                </button>
+                            </div>
+
+                            {numeroApplique && (
+                                <p className="text-sm text-emerald-600 font-medium flex items-center gap-2">
+                                    ✓ Compteur repositionné sur {devisNumeroInitial}. Le prochain devis recevra ce numéro.
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

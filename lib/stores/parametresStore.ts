@@ -55,6 +55,12 @@ interface ParametresState {
     updateCompta: (key: keyof ComptaDefaut, value: string) => void;
     resetCoefficients: () => void;
     resetAll: () => void;
+    // Numérotation des devis
+    devisNumeroInitial: number;        // Numéro de départ configuré par l'utilisateur
+    devisNumeroActuel: number;         // Prochain numéro à attribuer
+    setDevisNumeroInitial: (n: number) => void; // Définit le numéro de départ ET réinitialise le compteur
+    consommerProchainNumeroDevis: () => number;  // Retourne le numéro courant PUIS incrémente
+    redefinirCompteurDevis: (n: number) => void; // Repositionne le compteur (modification manuelle sur un devis)
     // Types de Travaux
     typesTravaux: TypeTravaux[];
     addTypeTravaux: (label: string) => void;
@@ -83,6 +89,7 @@ const CALCUL_MO_DEFAUT: CalculMOParams = {
 
 const COUT_HORAIRE_DEFAUT = 23.50;
 const BENEFICE_DEFAUT = 10; // 10% par défaut
+const DEVIS_NUMERO_INITIAL_DEFAUT = 1;
 
 const COMPTA_DEFAUT: ComptaDefaut = {
     compteClientDefaut: '411000',
@@ -133,12 +140,14 @@ const TAG_CATEGORIES_DEFAUT: TagCategorie[] = [
 
 export const useParametresStore = create<ParametresState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             coefficients: { ...COEFFICIENTS_DEFAUT },
             coutHoraireMO: COUT_HORAIRE_DEFAUT,
             beneficeParDefaut: BENEFICE_DEFAUT,
             calculMO: { ...CALCUL_MO_DEFAUT },
             compta: { ...COMPTA_DEFAUT },
+            devisNumeroInitial: DEVIS_NUMERO_INITIAL_DEFAUT,
+            devisNumeroActuel: DEVIS_NUMERO_INITIAL_DEFAUT,
             typesTravaux: TYPES_TRAVAUX_DEFAUT,
             tagCategories: TAG_CATEGORIES_DEFAUT,
 
@@ -173,13 +182,28 @@ export const useParametresStore = create<ParametresState>()(
             },
 
             resetAll: () => {
-                set({
+                set((state) => ({
                     coefficients: { ...COEFFICIENTS_DEFAUT },
                     coutHoraireMO: COUT_HORAIRE_DEFAUT,
                     beneficeParDefaut: BENEFICE_DEFAUT,
                     calculMO: { ...CALCUL_MO_DEFAUT },
                     compta: { ...COMPTA_DEFAUT },
-                });
+                    devisNumeroActuel: state.devisNumeroInitial,
+                }));
+            },
+
+            setDevisNumeroInitial: (n) => {
+                set({ devisNumeroInitial: n, devisNumeroActuel: n });
+            },
+
+            consommerProchainNumeroDevis: () => {
+                const current = get().devisNumeroActuel;
+                set({ devisNumeroActuel: current + 1 });
+                return current;
+            },
+
+            redefinirCompteurDevis: (n) => {
+                set({ devisNumeroActuel: n });
             },
 
             addTypeTravaux: (label) => set((state) => ({

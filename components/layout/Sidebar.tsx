@@ -19,6 +19,7 @@ const navigation = [
     { name: "Tableau de Bord", href: "/dashboard", icon: LayoutDashboard },
     { name: "Chantiers", href: "/chantiers", icon: HardHat },
     { name: "Devis", href: "/devis", icon: FileText },
+    { name: "Commandes", href: "/commandes", icon: FileCheck },
     { name: "Clients", href: "/clients", icon: UserCog },
     { name: "Articles", href: "/articles", icon: Package },
     { name: "Ouvrages", href: "/ouvrages", icon: Layers },
@@ -38,7 +39,7 @@ export function Sidebar() {
                     <HardHat className="text-white" size={20} />
                 </div>
                 <div>
-                    <h1 className="text-sm font-black tracking-widest leading-none text-white uppercase">
+                    <h1 className="text-sm font-black tracking-widest leading-none text-white">
                         PragmaGestion
                     </h1>
                     <p className="text-[8px] font-bold uppercase tracking-widest" style={{ color: '#10b981' }}>
@@ -56,8 +57,8 @@ export function Sidebar() {
                             key={item.name}
                             href={item.href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${isActive
-                                    ? "text-white shadow-lg"
-                                    : "text-white/50 hover:text-white/80"
+                                ? "text-white shadow-lg"
+                                : "text-white/50 hover:text-white/80"
                                 }`}
                             style={isActive ? { backgroundColor: '#10b981' } : {}}
                             onMouseEnter={(e) => {

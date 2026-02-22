@@ -9,7 +9,7 @@ export const mockQuotes: Quote[] = [
         description: 'Rénovation Façade Nord',
         date: '2026-02-10',
         validUntil: '2026-03-10',
-        status: 'SENT',
+        status: 'REMIS',
         sections: [
             {
                 id: 's1',
@@ -39,7 +39,7 @@ export const mockQuotes: Quote[] = [
         description: 'Construction Garage',
         date: '2026-02-12',
         validUntil: '2026-03-12',
-        status: 'DRAFT',
+        status: 'ETUDE',
         sections: [],
         globalCoefficients: { mo: 1.15, mat: 1.10, st: 1.05 },
         benefice: 10,
@@ -53,7 +53,7 @@ export const mockQuotes: Quote[] = [
         description: 'Réfection Toiture Bat. A',
         date: '2026-02-14',
         validUntil: '2026-03-14',
-        status: 'ACCEPTED',
+        status: 'ACCEPTE',
         sections: [],
         globalCoefficients: { mo: 1.15, mat: 1.10, st: 1.05 },
         benefice: 10,
